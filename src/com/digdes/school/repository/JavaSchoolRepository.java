@@ -1,7 +1,6 @@
 package com.digdes.school.repository;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,11 +11,9 @@ public class JavaSchoolRepository {
         this.repository = new ArrayList<>();
     }
 
-    public void insert(String key, String value) {
-        Map<String, Object> map = new HashMap<>();
-        map.put(key, value);
-
+    public List<Map<String, Object>> insert(Map<String, Object> map) {
         repository.add(map);
+        return repository;
     }
 
     public List<Map<String, Object>> update(String request) {
