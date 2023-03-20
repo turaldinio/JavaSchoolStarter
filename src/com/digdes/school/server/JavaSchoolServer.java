@@ -1,31 +1,36 @@
 package com.digdes.school.server;
 
-import java.util.ArrayList;
+import com.digdes.school.repository.JavaSchoolRepository;
+
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class JavaSchoolServer {
-    private final List<Map<String, Objects>> repository;
+    private JavaSchoolRepository repository;
 
     public JavaSchoolServer() {
-        this.repository = new ArrayList<>();
+        this.repository = new JavaSchoolRepository();
     }
 
     public List<Map<String, Object>> insert(String request) {
-        return new ArrayList<>();
+        return repository.insert(request);
     }
 
     public List<Map<String, Object>> update(String request) {
-        return new ArrayList<>();
+        return repository.update(request);
+
 
     }
+
     public List<Map<String, Object>> select(String request) {
-        return new ArrayList<>();
+        return repository.select(request);
+
 
     }
+
     public List<Map<String, Object>> delete(String request) {
-        return new ArrayList<>();
+        return repository.delete(request);
+
 
     }
 
