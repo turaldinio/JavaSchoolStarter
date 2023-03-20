@@ -14,7 +14,8 @@ public class JavaSchoolStarter {
     }
 
     public List<Map<String, Object>> execute(String request) throws Exception {
-        switch (request) {
+
+        switch (request.substring(0, request.indexOf(' '))) {
             case "INSERT":
                 return javaSchoolServer.insert(request);
             case "UPDATE":
