@@ -1,28 +1,28 @@
 package com.digdes.school;
 
-import com.digdes.school.server.JavaSchoolStarterServer;
+import com.digdes.school.server.JavaSchoolServer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class JavaSchoolStarter {
-    private JavaSchoolStarterServer javaSchoolStarterServer;
+    private JavaSchoolServer javaSchoolServer;
 
     public JavaSchoolStarter() {
-        javaSchoolStarterServer = new JavaSchoolStarterServer;
+        javaSchoolServer = new JavaSchoolServer();
     }
 
     public List<Map<String, Object>> execute(String request) throws Exception {
         switch (request) {
             case "INSERT":
-                return javaSchoolStarterServer.insert(request);
+                return javaSchoolServer.insert(request);
             case "UPDATE":
-                return javaSchoolStarterServer.update(request);
+                return javaSchoolServer.update(request);
             case "SELECT":
-                return javaSchoolStarterServer.select(request);
+                return javaSchoolServer.select(request);
             case "DELETE":
-                return javaSchoolStarterServer.delete(request);
+                return javaSchoolServer.delete(request);
         }
 
         return new ArrayList<>();
