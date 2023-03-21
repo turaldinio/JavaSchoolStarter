@@ -31,7 +31,7 @@ public class JavaSchoolServer {
                         forEach((values) ->
                                 map.put(values[0], values[1]));
             }
-           return javaSchoolRepository.insert(map);
+            return javaSchoolRepository.insert(map);
 
         } catch (Exception e) {
             e.printStackTrace();
