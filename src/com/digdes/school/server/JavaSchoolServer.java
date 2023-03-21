@@ -40,6 +40,13 @@ public class JavaSchoolServer {
     }
 
     public List<Map<String, Object>> update(String request) {
+        var map = new HashMap<String, Object>();
+
+        String stub = "update values";
+
+        var condition = conditionParser(request);
+
+
         return javaSchoolRepository.update(request);
 
 
@@ -55,6 +62,11 @@ public class JavaSchoolServer {
         return javaSchoolRepository.delete(request);
 
 
+    }
+
+    public Map<String, Object> conditionParser(String request) {
+        String condition = request.substring(request.indexOf("where"));
+        return null;
     }
 
 }
