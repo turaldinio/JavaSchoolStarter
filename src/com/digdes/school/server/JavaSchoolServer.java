@@ -5,7 +5,7 @@ import com.digdes.school.repository.JavaSchoolRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+
 
 public class JavaSchoolServer {
     private JavaSchoolRepository javaSchoolRepository;
@@ -22,14 +22,17 @@ public class JavaSchoolServer {
             var array = request.substring(stub.length()).split(",");
 
             for (String line : array) {
+                String cleanParameters = line.replaceAll("'", "").trim();
 
-                Stream.of(line.
-                                replaceAll("'", "").
-                                trim()).
-                        map(x -> x.
-                                split("=")).
-                        forEach((values) ->
-                                map.put(values[0], values[1]));
+                String operation = cleanParameters.replaceAll("[^!=><%]", "");
+                String columnName = cleanParameters.substring(0, cleanParameters.indexOf(operation)).trim();
+                String columnValue = cleanParameters.substring(cleanParameters.indexOf(operation) + 1).trim();
+
+
+                var typedObject = ConverterClass.getConvertionMap().get(columnName).apply(columnValue);
+
+                map.put(columnName, typedObject);
+
             }
             return javaSchoolRepository.insert(map);
 
@@ -52,6 +55,10 @@ public class JavaSchoolServer {
 
     }
 
+    private Map<String, Object> conditionParser(String request) {
+        return null;
+    }
+
     public List<Map<String, Object>> select(String request) {
         return javaSchoolRepository.select(request);
 
@@ -64,9 +71,5 @@ public class JavaSchoolServer {
 
     }
 
-    public Map<String, Object> conditionParser(String request) {
-        String condition = request.substring(request.indexOf("where"));
-        return null;
-    }
 
 }
