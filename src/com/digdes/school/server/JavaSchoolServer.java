@@ -43,12 +43,38 @@ public class JavaSchoolServer {
     }
 
     public List<Map<String, Object>> update(String request) {
+        request = request.replaceAll("'", "");
         var map = new HashMap<String, Object>();
 
         String stub = "update values";
 
-        var condition = conditionParser(request);
+        var arrayNewValues = request.
+                substring(stub.length(), request.indexOf("where")).
+                trim().
+                split(",");
 
+        var oldValues = request.
+                substring(request.indexOf("where")
+                        + "where".length()).
+                trim();
+
+        String operation = oldValues.replaceAll("[^!=><%]", "");
+        String columnName = oldValues.substring(0, oldValues.indexOf(operation)).trim();
+        String columnValue = oldValues.substring(oldValues.indexOf(operation) + 1).trim();
+
+        for (Map<String, Object> pairs : javaSchoolRepository.getRepository()) {
+            if (pairs.containsKey(columnName)) {
+                var currentObject = pairs.get(columnName);
+
+                if (currentObject instanceof Long) {
+                    Long typedObject = (Long) currentObject;
+
+                }
+
+
+
+            }
+        }
 
         return javaSchoolRepository.update(request);
 
