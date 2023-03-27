@@ -31,4 +31,9 @@ public class JavaSchoolRepository {
     public List<Map<String, Object>> getRepository() {
         return repository;
     }
+
+    public Map<String, Object> getMapByKey(String key) {
+
+        return repository.stream().filter(x -> x.containsKey(key)).findAny().orElseGet(null);
+    }
 }

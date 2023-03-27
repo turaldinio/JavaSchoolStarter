@@ -1,20 +1,24 @@
 package com.digdes.school;
 
 public class RequestParam<T> {
-    private String name;
     private T value;
 
-    public RequestParam(String name, T value) {
-        this.name = name;
+
+
+    public RequestParam() {
+
+    }
+
+    public RequestParam(T value) {
         this.value = value;
     }
 
 
-    public String getName() {
-        return name;
-    }
-
     public T getValue() {
         return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
     }
 }
