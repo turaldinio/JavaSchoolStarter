@@ -24,12 +24,35 @@ public class ConverterClass {
     private static final Function<String, Double> transferToDouble = Double::parseDouble;
     private static final Map<String, Function<String, ?>> convertionMap;
     private static Map<String, MathOperationParser<RequestParam<?>, Boolean>> operaionMap;
+    private static Map<String, MathOperationParser<Object, Boolean>> timeMap;
 
     static {
+        timeMap = Map.of("=",
+                (currentValue, requestValue) -> {
+                    if (currentValue instanceof Double) {
+                        return (double) currentValue == (double) requestValue;
+                    }
+                    if (currentValue instanceof Long) {
+                        return (long) currentValue == (long) requestValue;
 
+                    }
+                    if (currentValue instanceof String) {
+                        return String.valueOf(currentValue).equals(String.valueOf(requestValue));
+
+                    }
+                    if (currentValue instanceof Boolean) {
+                        return (boolean) currentValue == (boolean) requestValue;
+                    }
+
+
+                    return false;
+                }
+        );
 
         operaionMap = Map.of(
-                "=", (currentValue, requestValue) -> {
+                "=", (currentValue, requestValue) ->
+
+                {
                     if (currentValue.getValue() instanceof Double) {
                         return (double) currentValue.getValue() == (double) requestValue.getValue();
                     }
@@ -70,4 +93,7 @@ public class ConverterClass {
         return operaionMap;
     }
 
+    public static Map<String, MathOperationParser<Object, Boolean>> getTimeMap() {
+        return timeMap;
+    }
 }

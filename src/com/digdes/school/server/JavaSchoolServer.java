@@ -17,8 +17,6 @@ public class JavaSchoolServer {
         var map = new HashMap<String, Object>();
         String stub = "insert values";
 
-        RequestParam<?> requestParam = null;
-
         try {
             var array = request.substring(stub.length()).split(",");
 
@@ -29,22 +27,10 @@ public class JavaSchoolServer {
                 String columnName = cleanParameters.substring(0, cleanParameters.indexOf(operation)).trim();
                 String columnValue = cleanParameters.substring(cleanParameters.indexOf(operation) + 1).trim();
 
+                var typedObject = ConverterClass.getConvertionMap().get(columnName).apply(columnValue);
 
-                switch (columnName) {
-                    case "id", "age" -> requestParam = new RequestParam<>(Long.parseLong(columnValue));
-                    case "cost" -> requestParam = new RequestParam<>(Double.parseDouble(columnValue));
-                    case "lastname" -> requestParam = new RequestParam<>(columnValue);
-                    case "active" -> {
-                        if (columnValue.equals("true") || columnValue.equals("false")) {
-                            requestParam = new RequestParam<>(Boolean.getBoolean(columnName));
-                        }
 
-                    }
-                }
-
-                //     var typedObject = ConverterClass.getConvertionMap().get(columnName).apply(columnValue);
-
-                map.put(columnName, requestParam);
+                map.put(columnName, typedObject);
 
             }
             return javaSchoolRepository.insert(map);
@@ -96,43 +82,12 @@ public class JavaSchoolServer {
             String filterColumnValue = line.substring(line.indexOf(filterOperation) + 1).trim();
 
             if (map.containsKey(filterColumnName)) {
-                switch (filterColumnName) {
-                    case "id", "age" -> {
-                        RequestParam<Long> repositoryValue = (RequestParam<Long>) map.get(filterColumnName);
-                        RequestParam<Long> requestParam = new RequestParam<>(Long.parseLong(filterColumnValue));
+                var repositoryValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
+                var requestValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
 
-                        if (!ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                            return false;
-                        }
-                    }
-                    case "lastname" -> {
-                        RequestParam<String> repositoryValue = (RequestParam<String>) map.get(filterColumnName);
-                        RequestParam<String> requestParam = new RequestParam<>(filterColumnValue);
-
-                        if (!ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                            return false;
-                        }
-
-                    }
-                    case "cost" -> {
-                        RequestParam<Double> repositoryValue = (RequestParam<Double>) map.get(filterColumnName);
-                        RequestParam<Double> requestParam = new RequestParam<>(Double.valueOf(filterColumnValue));
-
-                        if (!ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                            return false;
-                        }
-                    }
-                    case "active" -> {
-                        RequestParam<Boolean> repositoryValue = (RequestParam<Boolean>) map.get(filterColumnName);
-                        RequestParam<Boolean> requestParam = new RequestParam<>(Boolean.parseBoolean(filterColumnValue));
-
-                        if (!ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                            return false;
-                        }
-                    }
-
+                if (!ConverterClass.getTimeMap().get(filterOperation).parseOperation(repositoryValue, requestValue)) {
+                    return false;
                 }
-
 
             }
 
@@ -151,46 +106,14 @@ public class JavaSchoolServer {
 
             for (Map<String, Object> pairs : javaSchoolRepository.getRepository()) {
                 if (pairs.containsKey(filterColumnName)) {
-                    switch (filterColumnName) {
-                        case "id", "age" -> {
-                            RequestParam<Long> repositoryValue = (RequestParam<Long>) pairs.get(filterColumnName);
-                            RequestParam<Long> requestParam = new RequestParam<>(Long.parseLong(filterColumnValue));
+                    var repositoryValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
+                    var requestValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
 
-                            if (ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                                listMap.add(pairs);
-                                return listMap;
-                            }
-                        }
-                        case "lastname" -> {
-                            RequestParam<String> repositoryValue = (RequestParam<String>) pairs.get(filterColumnName);
-                            RequestParam<String> requestParam = new RequestParam<>(filterColumnValue);
-
-                            if (ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                                listMap.add(pairs);
-                                return listMap;
-                            }
-
-                        }
-                        case "cost" -> {
-                            RequestParam<Double> repositoryValue = (RequestParam<Double>) pairs.get(filterColumnName);
-                            RequestParam<Double> requestParam = new RequestParam<>(Double.valueOf(filterColumnValue));
-
-                            if (ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                                listMap.add(pairs);
-                                return listMap;
-                            }
-                        }
-                        case "active" -> {
-                            RequestParam<Boolean> repositoryValue = (RequestParam<Boolean>) pairs.get(filterColumnName);
-                            RequestParam<Boolean> requestParam = new RequestParam<>(Boolean.parseBoolean(filterColumnValue));
-
-                            if (ConverterClass.getOperaionMap().get(filterOperation).parseOperation(repositoryValue, requestParam)) {
-                                listMap.add(pairs);
-                                return listMap;
-                            }
-                        }
-
+                    if (ConverterClass.getTimeMap().get(filterOperation).parseOperation(repositoryValue, requestValue)) {
+                        listMap.add(pairs);
+                        return listMap;
                     }
+
                 }
             }
         } else {
