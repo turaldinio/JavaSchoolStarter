@@ -171,11 +171,6 @@ public class JavaSchoolServer {
         return updateMap;
     }
 
-
-    public List<String> keysList(String[] pairs) {
-        return Arrays.stream(pairs).map(x -> x.split("[!=><%]")).map(x -> x[0].trim()).collect(Collectors.toList());
-    }
-
     public boolean checkAvailabilityOfAllKeys(String[] request, Map<String, Object> map) {
         for (String parameter : request) {
             var paramArray = getProcessedRequestData(parameter);
@@ -189,10 +184,10 @@ public class JavaSchoolServer {
     }
 
     public String[] getProcessedRequestData(String data) {
-        String[] array = new String[3];
-        array[0] = data.replaceAll("[^!=><%]", "");
-        array[1] = data.substring(0, data.indexOf(array[0])).trim();
-        array[2] = data.substring(data.indexOf(array[0]) + 1).trim();
+        String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
+        array[MATH_OPERATION] = data.replaceAll("[^!=><%]", "");
+        array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
+        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME).trim();
         return array;
     }
 }

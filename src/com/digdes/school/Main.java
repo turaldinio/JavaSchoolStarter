@@ -13,7 +13,7 @@ public class Main {
             List<Map<String, Object>> result1 = starter.execute("INSERT VALUES 'lastName' = 'Федоров' , 'id'=3, 'age'=40, 'active'=true");
 //Изменение значения которое выше записывали
             //List<Map<String, Object>> result2 = starter.execute("UPDATE VALUES 'active'=false, 'cost'=10.1 where 'id'=3");
-            List<Map<String, Object>> result2 = starter.execute("UPDATE VALUES 'active'=false, 'age'=22 where 'id'=3 and lastname=федоров");
+            List<Map<String, Object>> result2 = starter.execute("UPDATE VALUES 'active'=false where 'id'=3 and lastname=федоров and 'age'=40 ");
 //Получение всех данных из коллекции (т.е. в данном примере вернется 1 запись)
             List<Map<String, Object>> result3 = starter.execute("SELECT");
 

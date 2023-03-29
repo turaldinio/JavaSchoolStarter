@@ -19,9 +19,6 @@ public class JavaSchoolRepository {
         return repository;
     }
 
-    public List<Map<String, Object>> update(Map<String, Object> map) {
-        return insert(map);
-    }
 
     public List<Map<String, Object>> select(String request) {
         return repository;
