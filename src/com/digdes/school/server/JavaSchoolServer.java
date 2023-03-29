@@ -1,12 +1,18 @@
 package com.digdes.school.server;
 
-import com.digdes.school.RequestParam;
+import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class JavaSchoolServer {
+    private static final int MATH_OPERATION = 0;
+
+    private static final int COLUMN_NAME = 1;
+
+    private static final int COLUMN_VALUE = 2;
     private JavaSchoolRepository javaSchoolRepository;
 
     public JavaSchoolServer() {
@@ -45,54 +51,62 @@ public class JavaSchoolServer {
         String stub = "update values";
         request = request.replaceAll("'", "");
 
-        if (request.contains("(")) {
-            var result = update(request.substring(request.indexOf("("), request.indexOf(")")));
-        }
-
         String filterCondition = request.
                 substring(request.
                         indexOf("where") + "where".
                         length());
 
-        //UPDATE VALUES 'active'=false, 'cost'=10.1 where 'id'=3
-        if (request.contains("or") && !request.contains("and")) {
-            parseUpdateRequestWithOr(filterCondition, new LinkedHashSet<>());
-            // TODO: 27.03.2023 отправляем данные мапы на изменение ее значений
+        String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
-        }
-        if (request.contains("and") && !request.contains("or")) {
-            for (Map<String, Object> pairs : javaSchoolRepository.getRepository()) {
-                if (parseUpdateRequestWithAnd(filterCondition, pairs)) {
-                    // TODO: 27.03.2023 отправляем данную мапу на изменение ее значений
+        //UPDATE VALUES 'active'=false, 'cost'=10.1 where 'id'=3
+//        if (filterCondition.contains("or") && !filterCondition.contains("and")) {
+//            var suitableMaps = parseUpdateRequestWithOr(filterCondition, new LinkedHashSet<>());
+//            var updateMapValues = updateValuesInRepository(newValues, suitableMaps);
+//            return javaSchoolRepository.update(updateMapValues);
+//        }
+
+        if (filterCondition.contains("and") && !filterCondition.contains("or")) {
+            List<Map<String, Object>> mapsList = new ArrayList<>();
+
+            String[] filterConditionArray = filterCondition.split("and");
+
+            Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
+
+            while (iterator.hasNext()) {
+                Map<String, Object> map = iterator.next();
+
+                if (checkAvailabilityOfAllKeys(filterConditionArray, map) && checkAvailabilityOfAllKeys(newValues, map)) {
+                    if (checkValuesInUpdateRequest(filterConditionArray, map)) {
+                        var updatedCollection = updateValuesInRepository(newValues, map);
+                        javaSchoolRepository.deleteMap(iterator);
+                        mapsList.add(updatedCollection);
+                    }
                 }
             }
-
+            return javaSchoolRepository.update(mapsList);
 
         }
-        return null;
+
+        return javaSchoolRepository.getRepository();
     }
 
-    public boolean parseUpdateRequestWithAnd(String request, Map<String, Object> map) {
-        var requestParamArray = request.split("and");
+    public boolean checkValuesInUpdateRequest(String[] filterArray, Map<String, Object> map) {
 
-        for (String line : requestParamArray) {
+        for (String currentFilter : filterArray) {
 
-            String filterOperation = line.replaceAll("[^!=><%]", "");
-            String filterColumnName = line.substring(0, line.indexOf(filterOperation)).trim();
-            String filterColumnValue = line.substring(line.indexOf(filterOperation) + 1).trim();
+            var processedRequestData = getProcessedRequestData(currentFilter);
 
-            if (map.containsKey(filterColumnName)) {
-                var repositoryValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
-                var requestValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
+            var repositoryValue = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).apply(String.valueOf(map.get(processedRequestData[COLUMN_NAME])));
+            var requestValue = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).apply(processedRequestData[COLUMN_VALUE]);
 
-                if (!ConverterClass.getTimeMap().get(filterOperation).parseOperation(repositoryValue, requestValue)) {
-                    return false;
-                }
+            if (!ConverterClass.getMathematicalSignsMap().get(processedRequestData[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
+                return false;
+
 
             }
-
         }
         return true;
+
     }
 
 
@@ -104,16 +118,21 @@ public class JavaSchoolServer {
             String filterColumnName = request.substring(0, request.indexOf(filterOperation)).trim();
             String filterColumnValue = request.substring(request.indexOf(filterOperation) + 1).trim();
 
-            for (Map<String, Object> pairs : javaSchoolRepository.getRepository()) {
-                if (pairs.containsKey(filterColumnName)) {
-                    var repositoryValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
+            Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
+
+            while (iterator.hasNext()) {
+                Map<String, Object> currentMap = iterator.next();
+                if (currentMap.containsKey(filterColumnName)) {
+                    var repositoryValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(String.valueOf(currentMap.get(filterColumnName)));
                     var requestValue = ConverterClass.getConvertionMap().get(filterColumnName).apply(filterColumnValue);
 
-                    if (ConverterClass.getTimeMap().get(filterOperation).parseOperation(repositoryValue, requestValue)) {
-                        listMap.add(pairs);
+                    if (ConverterClass.getMathematicalSignsMap().get(filterOperation).parseOperation(repositoryValue, requestValue)) {
+
+                        listMap.add(currentMap);
+
+                        javaSchoolRepository.deleteMap(iterator);
                         return listMap;
                     }
-
                 }
             }
         } else {
@@ -137,5 +156,43 @@ public class JavaSchoolServer {
 
     }
 
+    public Map<String, Object> updateValuesInRepository(String[] newValues, Map<String, Object> map) {
+        Map<String, Object> updateMap = map;
 
+        for (String newValue : newValues) {
+            var parseNewValue = getProcessedRequestData(newValue);
+            updateMap.put(parseNewValue[COLUMN_NAME],
+                    ConverterClass.getConvertionMap().
+                            get(parseNewValue[COLUMN_NAME]).
+                            apply(parseNewValue[COLUMN_VALUE]));
+
+        }
+
+        return updateMap;
+    }
+
+
+    public List<String> keysList(String[] pairs) {
+        return Arrays.stream(pairs).map(x -> x.split("[!=><%]")).map(x -> x[0].trim()).collect(Collectors.toList());
+    }
+
+    public boolean checkAvailabilityOfAllKeys(String[] request, Map<String, Object> map) {
+        for (String parameter : request) {
+            var paramArray = getProcessedRequestData(parameter);
+            if (!map.containsKey(paramArray[COLUMN_NAME])) {
+                throw new NonExistentParameter(String.format("the '%s' parameter is not found", paramArray[COLUMN_NAME]));
+
+            }
+        }
+        return true;
+
+    }
+
+    public String[] getProcessedRequestData(String data) {
+        String[] array = new String[3];
+        array[0] = data.replaceAll("[^!=><%]", "");
+        array[1] = data.substring(0, data.indexOf(array[0])).trim();
+        array[2] = data.substring(data.indexOf(array[0]) + 1).trim();
+        return array;
+    }
 }
