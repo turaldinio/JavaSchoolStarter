@@ -28,14 +28,11 @@ public class JavaSchoolServer {
             for (String line : array) {
                 String cleanParameters = line.replaceAll("'", "").trim();
 
-                String operation = cleanParameters.replaceAll("[^!=><%]", "");
-                String columnName = cleanParameters.substring(0, cleanParameters.indexOf(operation)).trim();
-                String columnValue = cleanParameters.substring(cleanParameters.indexOf(operation) + 1).trim();
+                var processedRequestData = getProcessedRequestData(cleanParameters);
+                var typedObject = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).
+                        apply(processedRequestData[COLUMN_VALUE]);
 
-                var typedObject = ConverterClass.getConvertionMap().get(columnName).apply(columnValue);
-
-
-                map.put(columnName, typedObject);
+                map.put(processedRequestData[COLUMN_NAME], typedObject);
 
             }
             return javaSchoolRepository.insert(map);
@@ -74,7 +71,7 @@ public class JavaSchoolServer {
             return javaSchoolRepository.update(mapsList);
 
         }
-        
+
 
         if (filterCondition.contains("and") && !filterCondition.contains("or")) {
             List<Map<String, Object>> mapsList = new ArrayList<>();
