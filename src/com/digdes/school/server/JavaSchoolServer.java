@@ -51,7 +51,6 @@ public class JavaSchoolServer {
                         length());
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
-        List<Map<String, Object>> mapsList = new ArrayList<>();
         String[] filterConditionArray = null;
         boolean greedy = false;
 
@@ -63,16 +62,10 @@ public class JavaSchoolServer {
             filterConditionArray = filterCondition.split("and");
             greedy = true;
         }
-
         var result = filterTheCollection(filterConditionArray, newValues, greedy);
 
-        for (Map<String, Object> map : result) {
-            var updatedCollection = createNewMapWithUpdateValues(newValues, map);
-            mapsList.add(updatedCollection);
-        }
+        return javaSchoolRepository.update(updateValuesInRepository(newValues, result));
 
-
-        return javaSchoolRepository.update(mapsList);
     }
 
     public boolean checkingValidityOfValues(String[] filterArray, Map<String, Object> map, boolean greedy) {
@@ -91,15 +84,20 @@ public class JavaSchoolServer {
                     greedy) {
                 return false;
             }
+            if (ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue) &&
+                    !greedy) {
+                return true;
+            }
+
 
         }
-        return true;
+        return greedy;
 
     }
 
 
-    public Set<Map<String, Object>> filterTheCollection(String[] requestLine, String[] newValues, boolean greedy) {
-        Set<Map<String, Object>> mapSet = new LinkedHashSet<>();
+    public List<Map<String, Object>> filterTheCollection(String[] requestLine, String[] newValues, boolean greedy) {
+        List<Map<String, Object>> mapList = new ArrayList<>();
 
         Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
 
@@ -109,14 +107,14 @@ public class JavaSchoolServer {
             if (checkAvailabilityOfAllKeys(requestLine, currentMap) && checkAvailabilityOfAllKeys(newValues, currentMap)) {
 
                 if (checkingValidityOfValues(requestLine, currentMap, greedy)) {
-                    mapSet.add(currentMap);
+                    mapList.add(currentMap);
                     javaSchoolRepository.deleteMap(iterator);
                 }
 
             }
         }
 
-        return mapSet;
+        return mapList;
     }
 
 
@@ -132,19 +130,18 @@ public class JavaSchoolServer {
 
     }
 
-    public Map<String, Object> createNewMapWithUpdateValues(String[] newValues, Map<String, Object> map) {
-        var updateMap = new HashMap<>(map);
+    public List<Map<String, Object>> updateValuesInRepository(String[] newValues, List<Map<String, Object>> map) {
+        for (Map<String, Object> pairs : map) {
+            Arrays.stream(newValues).
+                    map(this::getProcessedRequestData).
+                    forEach(x -> pairs.put(x[COLUMN_NAME],
+                            ConverterClass.getConvertionMap().
+                                    get(x[COLUMN_NAME]).
+                                    apply(x[COLUMN_VALUE])));
+        }
 
 
-        Arrays.stream(newValues).
-                map(this::getProcessedRequestData).
-                forEach(x -> updateMap.put(x[COLUMN_NAME],
-                        ConverterClass.getConvertionMap().
-                                get(x[COLUMN_NAME]).
-                                apply(x[COLUMN_VALUE])));
-
-
-        return updateMap;
+        return map;
     }
 
     public boolean checkAvailabilityOfAllKeys(String[] request, Map<String, Object> map) {
