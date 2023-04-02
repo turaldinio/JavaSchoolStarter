@@ -4,6 +4,8 @@ import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class JavaSchoolServer {
@@ -51,6 +53,14 @@ public class JavaSchoolServer {
                         length());
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
+
+        var timeResult = parseUpdateRequest(filterCondition, newValues);
+
+        return javaSchoolRepository.update(updateValuesInRepository(newValues, timeResult));
+
+    }
+
+    public List<Map<String, Object>> parseUpdateRequest(String filterCondition, String[] newValues) {
         String[] filterConditionArray = null;
         boolean greedy = false;
 
@@ -62,10 +72,27 @@ public class JavaSchoolServer {
             filterConditionArray = filterCondition.split("and");
             greedy = true;
         }
-        var result = filterTheCollection(filterConditionArray, newValues, greedy);
+        if (filterCondition.contains("and") && filterCondition.contains("or")) {
+            int orIndex = filterCondition.indexOf("or");
+            int andIndex = filterCondition.indexOf("and");
+            int nextParam = Integer.max(orIndex, andIndex);
 
-        return javaSchoolRepository.update(updateValuesInRepository(newValues, result));
+            var firstParse = parseUpdateRequest(filterCondition.substring(0, nextParam), newValues);
+            var secondParse = parseUpdateRequest(filterCondition.substring(nextParam + 3), newValues);
 
+            return Stream.concat(firstParse.stream(), secondParse.stream()).collect(Collectors.toList());
+        }
+        if (!filterCondition.contains("and") && !filterCondition.contains("or")) {
+            filterConditionArray = parseSingletonRequest(filterCondition);
+            greedy = true;
+        }
+
+        return filterTheCollection(filterConditionArray, newValues, greedy);
+
+    }
+
+    public String[] parseSingletonRequest(String request) {
+        return request.split("\n");
     }
 
     public boolean checkingValidityOfValues(String[] filterArray, Map<String, Object> map, boolean greedy) {
