@@ -8,9 +8,7 @@ import java.util.*;
 
 public class JavaSchoolServer {
     private static final int MATH_OPERATION = 0;
-
     private static final int COLUMN_NAME = 1;
-
     private static final int COLUMN_VALUE = 2;
     private JavaSchoolRepository javaSchoolRepository;
 
@@ -53,72 +51,54 @@ public class JavaSchoolServer {
                         length());
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
+        List<Map<String, Object>> mapsList = new ArrayList<>();
+        String[] filterConditionArray = null;
+        boolean greedy = false;
 
         if (filterCondition.contains("or") && !filterCondition.contains("and")) {
-
-            List<Map<String, Object>> mapsList = new ArrayList<>();
-
-            String[] filterConditionArray = filterCondition.split("or");
-
-            var result = parseUpdateRequestWithOr(filterConditionArray, newValues);
-
-            for (Map<String, Object> map : result) {
-                var updatedCollection = createNewMapWithUpdateValues(newValues, map);
-
-                mapsList.add(updatedCollection);
-            }
-
-            return javaSchoolRepository.update(mapsList);
+            filterConditionArray = filterCondition.split("or");
 
         }
-
-
         if (filterCondition.contains("and") && !filterCondition.contains("or")) {
-            List<Map<String, Object>> mapsList = new ArrayList<>();
-
-            String[] filterConditionArray = filterCondition.split("and");
-
-            Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
-
-            while (iterator.hasNext()) {
-                Map<String, Object> map = iterator.next();
-
-                if (checkAvailabilityOfAllKeys(filterConditionArray, map) && checkAvailabilityOfAllKeys(newValues, map)) {
-                    if (checkValuesInUpdateRequest(filterConditionArray, map)) {
-                        var updatedCollection = createNewMapWithUpdateValues(newValues, map);
-                        javaSchoolRepository.deleteMap(iterator);
-                        mapsList.add(updatedCollection);
-                    }
-                }
-            }
-            return javaSchoolRepository.update(mapsList);
-
+            filterConditionArray = filterCondition.split("and");
+            greedy = true;
         }
 
-        return javaSchoolRepository.getRepository();
+        var result = filterTheCollection(filterConditionArray, newValues, greedy);
+
+        for (Map<String, Object> map : result) {
+            var updatedCollection = createNewMapWithUpdateValues(newValues, map);
+            mapsList.add(updatedCollection);
+        }
+
+
+        return javaSchoolRepository.update(mapsList);
     }
 
-    public boolean checkValuesInUpdateRequest(String[] filterArray, Map<String, Object> map) {
-
+    public boolean checkingValidityOfValues(String[] filterArray, Map<String, Object> map, boolean greedy) {
         for (String currentFilter : filterArray) {
 
-            var processedRequestData = getProcessedRequestData(currentFilter);
+            var parseRequestParameters = getProcessedRequestData(currentFilter);
 
-            var repositoryValue = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).apply(String.valueOf(map.get(processedRequestData[COLUMN_NAME])));
-            var requestValue = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).apply(processedRequestData[COLUMN_VALUE]);
+            var repositoryValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
+                    apply(String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
 
-            if (!ConverterClass.getMathematicalSignsMap().get(processedRequestData[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
+            var requestValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
+                    apply(parseRequestParameters[COLUMN_VALUE]);
+
+
+            if (!ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue) &&
+                    greedy) {
                 return false;
-
-
             }
+
         }
         return true;
 
     }
 
 
-    public Set<Map<String, Object>> parseUpdateRequestWithOr(String[] requestLine, String[] newValues) {
+    public Set<Map<String, Object>> filterTheCollection(String[] requestLine, String[] newValues, boolean greedy) {
         Set<Map<String, Object>> mapSet = new LinkedHashSet<>();
 
         Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
@@ -128,21 +108,9 @@ public class JavaSchoolServer {
 
             if (checkAvailabilityOfAllKeys(requestLine, currentMap) && checkAvailabilityOfAllKeys(newValues, currentMap)) {
 
-                for (String requestParameters : requestLine) {
-                    var parseRequestParameters = getProcessedRequestData(requestParameters);
-
-                    var repositoryValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
-                            apply(String.valueOf(currentMap.get(parseRequestParameters[COLUMN_NAME])));
-
-                    var requestValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).apply(parseRequestParameters[COLUMN_VALUE]);
-
-
-                    if (ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
-                        mapSet.add(currentMap);
-                        javaSchoolRepository.deleteMap(iterator);
-                        break;
-                    }
-
+                if (checkingValidityOfValues(requestLine, currentMap, greedy)) {
+                    mapSet.add(currentMap);
+                    javaSchoolRepository.deleteMap(iterator);
                 }
 
             }

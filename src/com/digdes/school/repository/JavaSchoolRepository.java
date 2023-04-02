@@ -17,6 +17,9 @@ public class JavaSchoolRepository {
     public List<Map<String, Object>> update(List<Map<String, Object>> maps) {
         repository.addAll(maps);
         return repository;
+    }  public List<Map<String, Object>> update(Set<Map<String, Object>> maps) {
+        repository.addAll(maps);
+        return repository;
     }
 
 
