@@ -4,8 +4,6 @@ import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 public class JavaSchoolServer {
@@ -26,7 +24,7 @@ public class JavaSchoolServer {
             var array = request.substring(stub.length()).split(",");
 
             for (String line : array) {
-                String cleanParameters = line.replaceAll("'", "").trim();
+                String cleanParameters = line.replaceAll("'", "");
 
                 var processedRequestData = getProcessedRequestData(cleanParameters);
                 var typedObject = ConverterClass.getConvertionMap().get(processedRequestData[COLUMN_NAME]).
@@ -54,33 +52,24 @@ public class JavaSchoolServer {
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
-        var timeResult = parseUpdateRequest(filterCondition, newValues);
+        var timeResult = parseRequest(filterCondition, newValues);
 
         return javaSchoolRepository.update(updateValuesInRepository(newValues, timeResult));
 
     }
-
-    public List<Map<String, Object>> parseUpdateRequest(String filterCondition, String[] newValues) {
+//where 'id'=3 and 'lastname'='hull' or 'id'=4 and 'lastname'='uil'
+    public List<Map<String, Object>> parseRequest(String filterCondition, String[] newValues) {
         String[] filterConditionArray = null;
         boolean greedy = false;
 
-        if (filterCondition.contains("or") && !filterCondition.contains("and")) {
-            filterConditionArray = filterCondition.split("or");
-
-        }
         if (filterCondition.contains("and") && !filterCondition.contains("or")) {
             filterConditionArray = filterCondition.split("and");
             greedy = true;
         }
-        if (filterCondition.contains("and") && filterCondition.contains("or")) {
-            int orIndex = filterCondition.indexOf("or");
-            int andIndex = filterCondition.indexOf("and");
-            int nextParam = Integer.max(orIndex, andIndex);
 
-            var firstParse = parseUpdateRequest(filterCondition.substring(0, nextParam), newValues);
-            var secondParse = parseUpdateRequest(filterCondition.substring(nextParam + 3), newValues);
+        if (filterCondition.contains("or") && !filterCondition.contains("and")) {
+            filterConditionArray = filterCondition.split("or");
 
-            return Stream.concat(firstParse.stream(), secondParse.stream()).collect(Collectors.toList());
         }
         if (!filterCondition.contains("and") && !filterCondition.contains("or")) {
             filterConditionArray = parseSingletonRequest(filterCondition);
@@ -93,6 +82,29 @@ public class JavaSchoolServer {
 
     public String[] parseSingletonRequest(String request) {
         return request.split("\n");
+    }
+
+    // TODO: 02.04.2023 пока не использовать
+    public Map<String, Object> filterMaps(String param, Map<String, Object> map) {
+        int orIndex = param.indexOf("or");
+        int andIndex = param.indexOf("and");
+        int nextParam = Integer.min(orIndex, andIndex);
+
+        var parseRequestParameters = getProcessedRequestData(param);
+
+        var repositoryValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
+                apply(String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
+
+        var requestValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
+                apply(parseRequestParameters[COLUMN_VALUE]);
+
+        if (!ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
+            return null;
+        }
+        if (ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
+            return null;
+        }
+        return null;
     }
 
     public boolean checkingValidityOfValues(String[] filterArray, Map<String, Object> map, boolean greedy) {
@@ -187,7 +199,7 @@ public class JavaSchoolServer {
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
         array[MATH_OPERATION] = data.replaceAll("[^!=><%]", "");
         array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
-        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME).trim();
+        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME);
         return array;
     }
 }
