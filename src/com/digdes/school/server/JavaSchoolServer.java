@@ -4,6 +4,8 @@ import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class JavaSchoolServer {
@@ -57,7 +59,7 @@ public class JavaSchoolServer {
         return javaSchoolRepository.update(updateValuesInRepository(newValues, timeResult));
 
     }
-//where 'id'=3 and 'lastname'='hull' or 'id'=4 and 'lastname'='uil'
+
     public List<Map<String, Object>> parseRequest(String filterCondition, String[] newValues) {
         String[] filterConditionArray = null;
         boolean greedy = false;
@@ -76,6 +78,11 @@ public class JavaSchoolServer {
             greedy = true;
         }
 
+        if (filterCondition.contains("and") && filterCondition.contains("or")) {
+            filterConditionArray = andOrParser(filterCondition, newValues);
+
+        }
+
         return filterTheCollection(filterConditionArray, newValues, greedy);
 
     }
@@ -84,26 +91,37 @@ public class JavaSchoolServer {
         return request.split("\n");
     }
 
-    // TODO: 02.04.2023 пока не использовать
-    public Map<String, Object> filterMaps(String param, Map<String, Object> map) {
-        int orIndex = param.indexOf("or");
-        int andIndex = param.indexOf("and");
-        int nextParam = Integer.min(orIndex, andIndex);
 
-        var parseRequestParameters = getProcessedRequestData(param);
+    public String[] andOrParser(String request, String[] newValues) {
+        Pattern andPattern = Pattern.compile("and");
+        Pattern orPattern = Pattern.compile("or");
 
-        var repositoryValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
-                apply(String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
 
-        var requestValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
-                apply(parseRequestParameters[COLUMN_VALUE]);
+        List<Map<String, Object>> list = new ArrayList<>();
 
-        if (!ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
-            return null;
+        Matcher andMatcher = andPattern.matcher(request);
+        Matcher orMatcher = orPattern.matcher(request);
+
+        while (orMatcher.find()) {
+            int orEndPosition = orMatcher.end();
+
+            if (andMatcher.find(orEndPosition) && andMatcher.region(0, orEndPosition).find()) {
+                String[] array = request.split("or", 2);
+
+                //where 'id'=3 and 'lastname'='hull' or 'id'=4 and 'lastname'='uil'
+                //where 'id'=3  or 'id'=4 and 'lastname'='uil'
+
+                for (String line : array) {
+                    list.addAll(filterTheCollection(line.split("and"), newValues, true));
+                }
+                request=request.substring(andMatcher.region(0,orEndPosition).end());
+            }
+            if(andMatcher.find(orEndPosition)&&!andMatcher.region(0,orEndPosition).find()){
+
+            }
         }
-        if (ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue)) {
-            return null;
-        }
+
+
         return null;
     }
 
@@ -199,7 +217,7 @@ public class JavaSchoolServer {
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
         array[MATH_OPERATION] = data.replaceAll("[^!=><%]", "");
         array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
-        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME);
+        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME).trim();
         return array;
     }
 }
