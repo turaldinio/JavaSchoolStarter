@@ -45,7 +45,34 @@ public class ConverterClass {
 
                     return false;
                 }
-        );
+                , "like", (currentValue, requestValue) -> {
+                    if (currentValue instanceof String) {
+                        String requestValueString = String.valueOf(requestValue);
+                        String currentValueString = String.valueOf(currentValue);
+
+                        if (!requestValueString.contains("%")) {
+                            return currentValueString.contains(requestValueString);
+                        }
+                        if (requestValueString.matches("\\w+%+")) {
+                            String value = requestValueString.substring(0, requestValueString.indexOf("%"));
+                            return currentValueString.contains(value);
+                        }
+                        if (requestValueString.matches("%+\\w+")) {
+                            String value = requestValueString.substring(requestValueString.indexOf("%"));
+                            return currentValueString.contains(value);
+                        }
+                        if (requestValueString.matches("%+\\w+%+")) {
+                            String value = requestValueString.substring(requestValueString.indexOf("%"), requestValueString.lastIndexOf("%"));
+                            return currentValueString.contains(value);
+                        }
+
+
+                    }
+                    return false;
+                })
+
+
+        ;
 
         convertionMap = Map.of(
                 "id", transferToLong,

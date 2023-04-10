@@ -114,9 +114,9 @@ public class JavaSchoolServer {
                 for (String line : array) {
                     list.addAll(filterTheCollection(line.split("and"), newValues, true));
                 }
-                request=request.substring(andMatcher.region(0,orEndPosition).end());
+                request = request.substring(andMatcher.region(0, orEndPosition).end());
             }
-            if(andMatcher.find(orEndPosition)&&!andMatcher.region(0,orEndPosition).find()){
+            if (andMatcher.find(orEndPosition) && !andMatcher.region(0, orEndPosition).find()) {
 
             }
         }
@@ -214,6 +214,13 @@ public class JavaSchoolServer {
     }
 
     public String[] getProcessedRequestData(String data) {
+        data="lastname like фед%";
+        Pattern pattern = Pattern.compile(".*\\blike\\b.*");
+        Matcher matcher = pattern.matcher(data);
+        if (matcher.find()) {
+            String value = data.substring(matcher.end());
+
+        }
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
         array[MATH_OPERATION] = data.replaceAll("[^!=><%]", "");
         array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
