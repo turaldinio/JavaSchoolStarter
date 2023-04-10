@@ -45,7 +45,6 @@ public class JavaSchoolServer {
 
     public List<Map<String, Object>> update(String request) {
         String stub = "update values";
-        // request = request.replaceAll("'", "");
 
         String filterCondition = request.
                 substring(request.
@@ -233,7 +232,7 @@ public class JavaSchoolServer {
                 toLowerCase();
 
         array[COLUMN_VALUE] = data.
-                substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).
+                substring(data.indexOf(array[MATH_OPERATION]) + array[MATH_OPERATION].length()).
                 trim().
                 replaceAll("'", "");
         return array;

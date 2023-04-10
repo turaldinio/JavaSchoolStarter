@@ -12,11 +12,16 @@ public class SortStation {
 
         Stack<String> myStack = new Stack<>();
         Stack<Double> stack = new Stack<>();
-        Stack<Map<String, Object>> mapStack = new Stack<>();
+        StringBuilder stringBuilder = new StringBuilder();
+
+        Stack<Map<String, Object>> suitableMaps = new Stack<>();
         for (String value : values) {
             if (value.isBlank()) {
                 //если встретился пробел - пропускаем и идем дальше
                 continue;
+            }
+            if (!value.contains("or") || !value.contains("and")) {
+                stringBuilder.append(value);
             }
 
             if (value.matches("\\d+")) {
