@@ -15,9 +15,9 @@ public class JavaSchoolStarter {
 
     public List<Map<String, Object>> execute(String request) throws Exception {
         try {
-            request = request.toLowerCase();
 
-            return switch (request.substring(0, 6)) {
+
+            return switch (request.substring(0, 6).toLowerCase()) {
                 case "insert" -> javaSchoolServer.insert(request);
                 case "update" -> javaSchoolServer.update(request);
                 case "select" -> javaSchoolServer.select(request);

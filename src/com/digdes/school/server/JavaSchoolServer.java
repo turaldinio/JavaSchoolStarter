@@ -217,16 +217,44 @@ public class JavaSchoolServer {
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
 
         if (data.matches(".*\\blike\\b.*")) {
-            var likeRequestArray = data.split("\\blike\\b");
-            array[MATH_OPERATION] = "like";
-            array[COLUMN_NAME] = likeRequestArray[COLUMN_NAME].replaceAll("'", "").trim();
-            array[COLUMN_VALUE] = likeRequestArray[COLUMN_VALUE-1].trim().replaceAll("'","");
-            return array;
+            return parseLikeAndIlikeRequest(data, "like");
+        } else {
+            if (data.matches(".*\\bilike\\b.*")) {
+                return parseLikeAndIlikeRequest(data, "ilike");
+            }
         }
-        array[MATH_OPERATION] = data.replaceAll("[^!=><]", "");
-        array[COLUMN_NAME] = data.substring(COLUMN_NAME, data.indexOf(array[MATH_OPERATION])).trim().replaceAll("'", "");
 
-        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).trim().replaceAll("'", "");
+        array[MATH_OPERATION] = data.
+                replaceAll("[^!=><]", "");
+
+        array[COLUMN_NAME] = data.
+                substring(COLUMN_NAME, data.indexOf(array[MATH_OPERATION])).
+                trim().replaceAll("'", "").
+                toLowerCase();
+
+        array[COLUMN_VALUE] = data.
+                substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).
+                trim().
+                replaceAll("'", "");
+        return array;
+    }
+
+    public String[] parseLikeAndIlikeRequest(String request, String operationName) {
+        String[] array = new String[COLUMN_NAME + MATH_OPERATION + COLUMN_VALUE];
+
+        var requestArray = request.split("\\b" + operationName + "\\b");
+
+        array[MATH_OPERATION] = operationName;
+
+        array[COLUMN_NAME] = requestArray[COLUMN_NAME].
+                replaceAll("'", "").
+                trim().
+                toLowerCase();
+
+        array[COLUMN_VALUE] = requestArray[COLUMN_VALUE - 1].
+                trim().
+                replaceAll("'", "");
+
         return array;
     }
 }
