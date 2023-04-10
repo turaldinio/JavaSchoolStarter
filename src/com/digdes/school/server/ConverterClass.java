@@ -53,18 +53,21 @@ public class ConverterClass {
                         if (!requestValueString.contains("%")) {
                             return currentValueString.contains(requestValueString);
                         }
-                        if (requestValueString.matches("\\w+%+")) {
+
+                        if (requestValueString.matches("%+\\W+%+")) {
+                            String value = requestValueString.substring(requestValueString.indexOf("%")+1, requestValueString.lastIndexOf("%"));
+                            return currentValueString.contains(value);
+                        }
+
+                        if (requestValueString.matches("\\W+%+")) {
                             String value = requestValueString.substring(0, requestValueString.indexOf("%"));
                             return currentValueString.contains(value);
                         }
-                        if (requestValueString.matches("%+\\w+")) {
-                            String value = requestValueString.substring(requestValueString.indexOf("%"));
+                        if (requestValueString.matches("%+\\W+")) {
+                            String value = requestValueString.substring(requestValueString.indexOf("%")+1);
                             return currentValueString.contains(value);
                         }
-                        if (requestValueString.matches("%+\\w+%+")) {
-                            String value = requestValueString.substring(requestValueString.indexOf("%"), requestValueString.lastIndexOf("%"));
-                            return currentValueString.contains(value);
-                        }
+
 
 
                     }

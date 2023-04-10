@@ -15,7 +15,7 @@ public class Main {
             starter.execute("INSERT VALUES 'lastName' = 'Гулуев' , 'id'=3, 'age'=23, 'active'=true");
             //List<Map<String, Object>> result2 = starter.execute("UPDATE VALUES 'active'=false, 'cost'=10.1 where 'id'=3");
             List<Map<String, Object>> result2 = starter.
-                    execute("UPDATE VALUES 'active'=false where 'lastname' =  'гулуев'");
+                    execute("UPDATE VALUES 'active'=false where 'lastname'like '%ул%'");
             System.out.println(result2);
 //Получение всех данных из коллекции (т.е. в данном примере вернется 1 запись)
             List<Map<String, Object>> result3 = starter.execute("SELECT");

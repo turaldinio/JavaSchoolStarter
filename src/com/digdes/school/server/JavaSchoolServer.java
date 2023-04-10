@@ -217,14 +217,16 @@ public class JavaSchoolServer {
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
 
         if (data.matches(".*\\blike\\b.*")) {
-            array = data.split(" ");
+            var likeRequestArray = data.split("\\blike\\b");
+            array[MATH_OPERATION] = "like";
+            array[COLUMN_NAME] = likeRequestArray[COLUMN_NAME].replaceAll("'", "").trim();
+            array[COLUMN_VALUE] = likeRequestArray[COLUMN_VALUE-1].trim().replaceAll("'","");
             return array;
         }
         array[MATH_OPERATION] = data.replaceAll("[^!=><]", "");
         array[COLUMN_NAME] = data.substring(COLUMN_NAME, data.indexOf(array[MATH_OPERATION])).trim().replaceAll("'", "");
-        //     array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
 
-        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).trim().replaceAll("'","");
+        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).trim().replaceAll("'", "");
         return array;
     }
 }
