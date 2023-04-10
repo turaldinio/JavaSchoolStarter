@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 
 
 public class JavaSchoolServer {
-    private static final int MATH_OPERATION = 0;
-    private static final int COLUMN_NAME = 1;
+    private static final int MATH_OPERATION = 1;
+    private static final int COLUMN_NAME = 0;
     private static final int COLUMN_VALUE = 2;
     private JavaSchoolRepository javaSchoolRepository;
 
@@ -45,7 +45,7 @@ public class JavaSchoolServer {
 
     public List<Map<String, Object>> update(String request) {
         String stub = "update values";
-        request = request.replaceAll("'", "");
+        // request = request.replaceAll("'", "");
 
         String filterCondition = request.
                 substring(request.
@@ -214,17 +214,17 @@ public class JavaSchoolServer {
     }
 
     public String[] getProcessedRequestData(String data) {
-        data="lastname like фед%";
-        Pattern pattern = Pattern.compile(".*\\blike\\b.*");
-        Matcher matcher = pattern.matcher(data);
-        if (matcher.find()) {
-            String value = data.substring(matcher.end());
-
-        }
         String[] array = new String[MATH_OPERATION + COLUMN_NAME + COLUMN_VALUE];
-        array[MATH_OPERATION] = data.replaceAll("[^!=><%]", "");
-        array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
-        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + COLUMN_NAME).trim();
+
+        if (data.matches(".*\\blike\\b.*")) {
+            array = data.split(" ");
+            return array;
+        }
+        array[MATH_OPERATION] = data.replaceAll("[^!=><]", "");
+        array[COLUMN_NAME] = data.substring(COLUMN_NAME, data.indexOf(array[MATH_OPERATION])).trim().replaceAll("'", "");
+        //     array[COLUMN_NAME] = data.substring(MATH_OPERATION, data.indexOf(array[MATH_OPERATION])).trim();
+
+        array[COLUMN_VALUE] = data.substring(data.indexOf(array[MATH_OPERATION]) + MATH_OPERATION).trim().replaceAll("'","");
         return array;
     }
 }
