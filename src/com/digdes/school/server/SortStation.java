@@ -1,11 +1,11 @@
-package com.digdes.school;
+package com.digdes.school.server;
 
 import com.digdes.school.server.JavaSchoolServer;
 
 import java.util.*;
 
 public class SortStation {
-    private JavaSchoolServer javaSchoolServer;
+    private final JavaSchoolServer javaSchoolServer;
 
     public SortStation(JavaSchoolServer javaSchoolServer) {
         this.javaSchoolServer = javaSchoolServer;
@@ -152,7 +152,7 @@ public class SortStation {
 
     }
 
-    public void saveSuitableCollection(Stack<List<Map<String, Object>>> mapStack, String[] array, boolean greedy, List<Map<String, Object>> map) {
+    private void saveSuitableCollection(Stack<List<Map<String, Object>>> mapStack, String[] array, boolean greedy, List<Map<String, Object>> map) {
         var result = findSuitableCollection(array, greedy, javaSchoolServer.getJavaSchoolRepository().getRepository());
         if (!result.isEmpty()) {
             mapStack.push(result);
@@ -171,31 +171,14 @@ public class SortStation {
 
                 if (javaSchoolServer.checkingValidityOfValues(filterParam, currentMap, greedy)) {
                     list.add(currentMap);
-                    javaSchoolServer.getJavaSchoolRepository().deleteMap(iterator);
+                //    javaSchoolServer.getJavaSchoolRepository().deleteMap(iterator);
                 }
 
             }
         }
 
-
         return list;
     }
-
-
-    private boolean checkMapInValidityColumnName(Map<String, Object> map) {
-        for (Map.Entry<String, Object> pairs : map.entrySet()) {
-            if (!checkThePresenceOfTheColumnNameInTheRepository(pairs.getKey())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // TODO: 11.04.2023 подразумевается что данные консистентны
-    private boolean checkThePresenceOfTheColumnNameInTheRepository(String columnName) {
-        return javaSchoolServer.getJavaSchoolRepository().getRepository().get(0).containsKey(columnName);
-    }
-
 
 }
 
