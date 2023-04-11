@@ -1,6 +1,5 @@
 package com.digdes.school.server;
 
-import com.digdes.school.server.JavaSchoolServer;
 
 import java.util.*;
 
@@ -171,7 +170,6 @@ public class SortStation {
 
                 if (javaSchoolServer.checkingValidityOfValues(filterParam, currentMap, greedy)) {
                     list.add(currentMap);
-                //    javaSchoolServer.getJavaSchoolRepository().deleteMap(iterator);
                 }
 
             }

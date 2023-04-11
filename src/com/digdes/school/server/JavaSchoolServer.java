@@ -2,6 +2,8 @@ package com.digdes.school.server;
 
 import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
+import com.digdes.school.server.interfaces.ArgumentsTypesConverter;
+import com.digdes.school.server.interfaces.MathematicalConverter;
 
 import java.util.*;
 
@@ -12,15 +14,15 @@ public class JavaSchoolServer {
     private static final int COLUMN_VALUE = 2;
     private final JavaSchoolRepository javaSchoolRepository;
     private final SortStation sortStation;
-    private final ArgumentsTypesConverterServer argumentsConverterServer;
+    private final ArgumentsTypesConverter argumentsConverterServer;
 
-    private final MathematicalConverterServer mathematicalConverterServer;
+    private final MathematicalConverter mathematicalConverterServer;
 
     public JavaSchoolServer() {
         this.javaSchoolRepository = new JavaSchoolRepository();
         this.sortStation = new SortStation(this);
-        this.argumentsConverterServer = new ArgumentsTypesConverterServer();
-        mathematicalConverterServer = new MathematicalConverterServer();
+        this.argumentsConverterServer = new ArgumentsTypesConverterImpl();
+        mathematicalConverterServer = new MathematicalConverterImpl();
     }
 
     public List<Map<String, Object>> insert(String request) {
