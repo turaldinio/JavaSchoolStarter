@@ -4,8 +4,6 @@ import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.JavaSchoolRepository;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class JavaSchoolServer {
@@ -14,12 +12,15 @@ public class JavaSchoolServer {
     private static final int COLUMN_VALUE = 2;
     private final JavaSchoolRepository javaSchoolRepository;
     private final SortStation sortStation;
-    private final ArgumentsTypesConverterServer converterServer;
+    private final ArgumentsTypesConverterServer argumentsConverterServer;
+
+    private final MathematicalConverterServer mathematicalConverterServer;
 
     public JavaSchoolServer() {
         this.javaSchoolRepository = new JavaSchoolRepository();
         this.sortStation = new SortStation(this);
-        this.converterServer = new ArgumentsTypesConverterServer();
+        this.argumentsConverterServer = new ArgumentsTypesConverterServer();
+        mathematicalConverterServer = new MathematicalConverterServer();
     }
 
     public List<Map<String, Object>> insert(String request) {
@@ -33,7 +34,7 @@ public class JavaSchoolServer {
                 String cleanParameters = line.replaceAll("'", "");
 
                 var processedRequestData = getProcessedRequestData(cleanParameters);
-                var typedObject = converterServer.getTypedValue(processedRequestData[COLUMN_NAME], processedRequestData[COLUMN_VALUE]);
+                var typedObject = argumentsConverterServer.getTypedValue(processedRequestData[COLUMN_NAME], processedRequestData[COLUMN_VALUE]);
 
                 map.put(processedRequestData[COLUMN_NAME], typedObject);
 
@@ -72,27 +73,11 @@ public class JavaSchoolServer {
             filterConditionArray = parseSingletonRequest(filterCondition);
             greedy = true;
 
-             result = filterTheCollection(filterConditionArray, newValues, greedy);
+            result = filterTheCollection(filterConditionArray, newValues, greedy);
 
         } else {
-             result = sortStation.calculatePostfixRequest(sortStation.getPostfixRequest(filterCondition));
+            result = sortStation.calculatePostfixRequest(sortStation.getPostfixRequest(filterCondition));
         }
-
-//        if (filterCondition.contains("and") && !filterCondition.contains("or")) {
-//            filterConditionArray = filterCondition.split("and");
-//            greedy = true;
-//        }
-//
-//        if (filterCondition.contains("or") && !filterCondition.contains("and")) {
-//            filterConditionArray = filterCondition.split("or");
-//
-//        }
-//
-//
-//        if (filterCondition.contains("and") && filterCondition.contains("or")) {
-//            filterConditionArray = andOrParser(filterCondition, newValues);
-//
-//        }
 
         return result;
 
@@ -108,23 +93,16 @@ public class JavaSchoolServer {
 
             var parseRequestParameters = getProcessedRequestData(currentFilter);
 
-            var repositoryValue = converterServer.getTypedValue(parseRequestParameters[COLUMN_NAME],
+            var repositoryValue = argumentsConverterServer.getTypedValue(parseRequestParameters[COLUMN_NAME],
                     String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
 
-            var requestValue = converterServer.getTypedValue(parseRequestParameters[COLUMN_NAME], parseRequestParameters[COLUMN_VALUE]);
+            var requestValue = argumentsConverterServer.getTypedValue(parseRequestParameters[COLUMN_NAME], parseRequestParameters[COLUMN_VALUE]);
 
-            //var repositoryValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
-            //                    apply(String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
-
-//            var requestValue = ConverterClass.getConvertionMap().get(parseRequestParameters[COLUMN_NAME]).
-//                    apply(parseRequestParameters[COLUMN_VALUE]);
-
-
-            if (!ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue) &&
+            if (!mathematicalConverterServer.isTheDateCorrect(parseRequestParameters[MATH_OPERATION], repositoryValue, requestValue) &&
                     greedy) {
                 return false;
             }
-            if (ConverterClass.getMathematicalSignsMap().get(parseRequestParameters[MATH_OPERATION]).parseOperation(repositoryValue, requestValue) &&
+            if (mathematicalConverterServer.isTheDateCorrect(parseRequestParameters[MATH_OPERATION], repositoryValue, requestValue) &&
                     !greedy) {
                 return true;
             }
@@ -175,7 +153,7 @@ public class JavaSchoolServer {
             Arrays.stream(newValues).
                     map(this::getProcessedRequestData).
                     forEach(x -> pairs.put(x[COLUMN_NAME],
-                            converterServer.getTypedValue(x[COLUMN_NAME], x[COLUMN_VALUE])));
+                            argumentsConverterServer.getTypedValue(x[COLUMN_NAME], x[COLUMN_VALUE])));
         }
 
         return map;
