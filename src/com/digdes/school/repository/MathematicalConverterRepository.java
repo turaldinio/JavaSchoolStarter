@@ -1,11 +1,24 @@
 package com.digdes.school.repository;
 
-import com.digdes.school.MathOperationParser;
+import com.digdes.school.server.interfaces.MathOperationParser;
 
 import java.util.Map;
 
 public class MathematicalConverterRepository {
-    private  Map<String, MathOperationParser<Object, Boolean>> mathematicalSignsMap =
+    private static MathematicalConverterRepository mathematicalConverterRepository;
+
+    private MathematicalConverterRepository() {
+
+    }
+
+    public static MathematicalConverterRepository getInstance() {
+        if (mathematicalConverterRepository == null) {
+            mathematicalConverterRepository = new MathematicalConverterRepository();
+        }
+        return mathematicalConverterRepository;
+    }
+
+    private Map<String, MathOperationParser<Object, Boolean>> mathematicalSignsMap =
             Map.of("=",
                     (currentValue, requestValue) -> {
                         if (currentValue instanceof Double) {
@@ -154,7 +167,7 @@ public class MathematicalConverterRepository {
 
                     });
 
-    public  Map<String, MathOperationParser<Object, Boolean>> getMathematicalSignsMap() {
+    public Map<String, MathOperationParser<Object, Boolean>> getMathematicalSignsMap() {
         return mathematicalSignsMap;
     }
 }

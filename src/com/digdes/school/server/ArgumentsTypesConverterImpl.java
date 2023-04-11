@@ -4,10 +4,19 @@ import com.digdes.school.repository.ArgumentsTypesConverterRepository;
 import com.digdes.school.server.interfaces.ArgumentsTypesConverter;
 
 public class ArgumentsTypesConverterImpl implements ArgumentsTypesConverter {
+    private static ArgumentsTypesConverterImpl argumentsTypesConverter;
+
     private final ArgumentsTypesConverterRepository repository;
 
-    public ArgumentsTypesConverterImpl() {
-        this.repository = new ArgumentsTypesConverterRepository();
+    private ArgumentsTypesConverterImpl() {
+        repository = ArgumentsTypesConverterRepository.getInstance();
+    }
+
+    public static ArgumentsTypesConverterImpl getInstance() {
+        if (argumentsTypesConverter == null) {
+            argumentsTypesConverter = new ArgumentsTypesConverterImpl();
+        }
+        return argumentsTypesConverter;
     }
 
 

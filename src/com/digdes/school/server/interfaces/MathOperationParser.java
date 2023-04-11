@@ -1,4 +1,4 @@
-package com.digdes.school;
+package com.digdes.school.server.interfaces;
 
 @FunctionalInterface
 public interface MathOperationParser<T, R> {

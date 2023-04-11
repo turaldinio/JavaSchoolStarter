@@ -2,11 +2,19 @@ package com.digdes.school.repository;
 
 import java.util.*;
 
-public class JavaSchoolRepository {
+public class DAORepository {
+    private static DAORepository javaSchoolRepository;
     private List<Map<String, Object>> repository;
 
-    public JavaSchoolRepository() {
+    private DAORepository() {
         this.repository = new ArrayList<>();
+    }
+
+    public static DAORepository getInstance() {
+    if(javaSchoolRepository==null){
+        javaSchoolRepository=new DAORepository();
+    }
+    return javaSchoolRepository;
     }
 
     public List<Map<String, Object>> insert(Map<String, Object> map) {
@@ -17,7 +25,9 @@ public class JavaSchoolRepository {
     public List<Map<String, Object>> update(List<Map<String, Object>> maps) {
         repository.addAll(maps);
         return repository;
-    }  public List<Map<String, Object>> update(Set<Map<String, Object>> maps) {
+    }
+
+    public List<Map<String, Object>> update(Set<Map<String, Object>> maps) {
         repository.addAll(maps);
         return repository;
     }

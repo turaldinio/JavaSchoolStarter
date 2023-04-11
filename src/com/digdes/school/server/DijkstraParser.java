@@ -1,16 +1,21 @@
 package com.digdes.school.server;
 
 
+import com.digdes.school.server.interfaces.ReversionPolishNotation;
+
 import java.util.*;
 
-public class SortStation {
-    private final JavaSchoolServer javaSchoolServer;
+public class DijkstraParser implements ReversionPolishNotation {
 
-    public SortStation(JavaSchoolServer javaSchoolServer) {
+
+    private final DAOServer javaSchoolServer;
+
+    public DijkstraParser(DAOServer javaSchoolServer) {
         this.javaSchoolServer = javaSchoolServer;
     }
 
-    private static Map<String, Integer> operationPriority = Map.of(
+
+    private static Map<String, Integer> priorityMap = Map.of(
             "(", 0
             ,
             "or", 1
@@ -18,8 +23,8 @@ public class SortStation {
             "and", 2
     );
 
+    @Override
     public String getPostfixRequest(String expression) {
-        //разбиваем строку пробелами
         String[] values = Objects.requireNonNull(expression).split(" ");
 
         Stack<String> operationStack = new Stack<>();
@@ -57,9 +62,9 @@ public class SortStation {
 
 
             if (value.contains("and") || value.contains("or")) {
-                int currentOperationPriority = operationPriority.get(value);
+                int currentOperationPriority = priorityMap.get(value);
                 for (int a = 0; a < operationStack.size(); a++) {
-                    int priority = operationPriority.get(operationStack.peek());
+                    int priority = priorityMap.get(operationStack.peek());
                     if (priority >= currentOperationPriority) {
                         stringBuilder.append(operationStack.pop()).append(" ");
                         a -= 1;
@@ -77,6 +82,7 @@ public class SortStation {
         return stringBuilder.toString();
     }
 
+    @Override
     public List<Map<String, Object>> calculatePostfixRequest(String postfixLine) {
         Stack<String> stack = new Stack<>();
 
@@ -145,9 +151,7 @@ public class SortStation {
             list.addAll(mapList);
         }
 
-
         return list;
-
 
     }
 

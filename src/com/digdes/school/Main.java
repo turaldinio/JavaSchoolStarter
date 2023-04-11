@@ -1,13 +1,11 @@
 package com.digdes.school;
 
 
-import com.digdes.school.server.SortStation;
-
 public class Main {
 
     public static void main(String... args) {
         JavaSchoolStarter starter = new JavaSchoolStarter();
-        // SortStation sortStation = new SortStation(starter.getJavaSchoolServer());
+        // DijkstraParser sortStation = new DijkstraParser(starter.getJavaSchoolServer());
 
         try {
             starter.execute("INSERT VALUES 'lastName' = 'Федоров ' , 'cost'=12.1, 'id'=3, 'age'=40, 'active'=true");

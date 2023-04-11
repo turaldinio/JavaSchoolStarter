@@ -1,16 +1,16 @@
 package com.digdes.school;
 
 import com.digdes.school.excption.BadRequest;
-import com.digdes.school.server.JavaSchoolServer;
+import com.digdes.school.server.DAOServer;
 
 import java.util.List;
 import java.util.Map;
 
 public class JavaSchoolStarter {
-    private JavaSchoolServer javaSchoolServer;
+    private DAOServer javaSchoolServer;
 
     public JavaSchoolStarter() {
-        javaSchoolServer = new JavaSchoolServer();
+        javaSchoolServer = new DAOServer();
     }
 
     public List<Map<String, Object>> execute(String request) throws Exception {
@@ -32,7 +32,7 @@ public class JavaSchoolStarter {
         return null;
     }
 
-    public JavaSchoolServer getJavaSchoolServer() {
+    public DAOServer getJavaSchoolServer() {
         return javaSchoolServer;
     }
 }

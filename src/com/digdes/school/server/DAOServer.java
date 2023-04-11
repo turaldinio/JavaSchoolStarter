@@ -1,28 +1,28 @@
 package com.digdes.school.server;
 
 import com.digdes.school.excption.NonExistentParameter;
-import com.digdes.school.repository.JavaSchoolRepository;
+import com.digdes.school.repository.DAORepository;
 import com.digdes.school.server.interfaces.ArgumentsTypesConverter;
 import com.digdes.school.server.interfaces.MathematicalConverter;
 
 import java.util.*;
 
 
-public class JavaSchoolServer {
+public class DAOServer {
     private static final int MATH_OPERATION = 1;
     private static final int COLUMN_NAME = 0;
     private static final int COLUMN_VALUE = 2;
-    private final JavaSchoolRepository javaSchoolRepository;
-    private final SortStation sortStation;
+    private final DAORepository javaSchoolRepository;
+    private final DijkstraParser dijkstraParser;
     private final ArgumentsTypesConverter argumentsConverterServer;
 
     private final MathematicalConverter mathematicalConverterServer;
 
-    public JavaSchoolServer() {
-        this.javaSchoolRepository = new JavaSchoolRepository();
-        this.sortStation = new SortStation(this);
-        this.argumentsConverterServer = new ArgumentsTypesConverterImpl();
-        mathematicalConverterServer = new MathematicalConverterImpl();
+    public DAOServer() {
+        this.javaSchoolRepository = DAORepository.getInstance();
+        this.dijkstraParser = new DijkstraParser(this);
+        this.argumentsConverterServer = ArgumentsTypesConverterImpl.getInstance();
+        mathematicalConverterServer = MathematicalConverterImpl.getInstance();
     }
 
     public List<Map<String, Object>> insert(String request) {
@@ -78,7 +78,7 @@ public class JavaSchoolServer {
             result = filterTheCollection(filterConditionArray, newValues, greedy);
 
         } else {
-            result = sortStation.calculatePostfixRequest(sortStation.getPostfixRequest(filterCondition));
+            result = dijkstraParser.calculatePostfixRequest(dijkstraParser.getPostfixRequest(filterCondition));
         }
 
         return result;
@@ -218,7 +218,9 @@ public class JavaSchoolServer {
         return array;
     }
 
-    public JavaSchoolRepository getJavaSchoolRepository() {
+
+
+    public DAORepository getJavaSchoolRepository() {
         return javaSchoolRepository;
     }
 }

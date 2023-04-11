@@ -4,6 +4,19 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class ArgumentsTypesConverterRepository {
+    private static ArgumentsTypesConverterRepository argumentsTypesConverterRepository;
+
+    private ArgumentsTypesConverterRepository() {
+
+    }
+
+    public static ArgumentsTypesConverterRepository getInstance() {
+        if (argumentsTypesConverterRepository == null) {
+            argumentsTypesConverterRepository = new ArgumentsTypesConverterRepository();
+        }
+        return argumentsTypesConverterRepository;
+    }
+
     private static final Function<String, Long> transferToLong = x -> x.contains("null") ? null : Long.parseLong(x);
     private static final Function<String, Boolean> transferToBoolean = x -> {
         if (x.equals("true") || x.equals("false")) {
