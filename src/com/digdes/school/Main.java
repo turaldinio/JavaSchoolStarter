@@ -8,17 +8,13 @@ public class Main {
 
     public static void main(String... args) {
         JavaSchoolStarter starter = new JavaSchoolStarter();
+        SortStation sortStation = new SortStation(starter.getJavaSchoolServer());
         try {
-//Вставка строки в коллекцию
-            List<Map<String, Object>> result1 = starter.execute("INSERT VALUES 'lastName' = 'Федоров ' , 'id'=3, 'age'=40, 'active'=true");
-//Изменение значения которое выше записывали
-            starter.execute("INSERT VALUES 'lastName' = 'Гулуев' , 'id'=3, 'age'=23, 'active'=true");
-            //List<Map<String, Object>> result2 = starter.execute("UPDATE VALUES 'active'=false, 'cost'=10.1 where 'id'=3");
-            List<Map<String, Object>> result2 = starter.
-                    execute("UPDATE VALUES 'active'=false where 'age' != 40");
-            System.out.println(result2);
-//Получение всех данных из коллекции (т.е. в данном примере вернется 1 запись)
-            List<Map<String, Object>> result3 = starter.execute("SELECT");
+            starter.execute("INSERT VALUES 'lastName' = 'Федоров ' , 'cost'=12.1, 'id'=3, 'age'=40, 'active'=true");
+            starter.execute("INSERT VALUES 'lastName' = 'Гулуев ' , 'cost'=1.2, 'id'=1, 'age'=24, 'active'=false");
+            starter.execute("INSERT VALUES 'lastName' = 'Мамедов ' , 'cost'=0.3, 'id'=4, 'age'=24, 'active'=true");
+            starter.execute("INSERT VALUES 'lastName' = 'Дмитриев ' , 'cost'=23.6, 'id'=2, 'age'=43, 'active'=true");
+            sortStation.calculatePostfixRequest(sortStation.getPostfixRequest("( 'id'>=3 and 'cost'>0 ) or ( 'age'>25 and id>1 )"));
 
         } catch (Exception ex) {
             ex.printStackTrace();

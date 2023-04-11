@@ -31,4 +31,8 @@ public class JavaSchoolStarter {
         }
         return null;
     }
+
+    public JavaSchoolServer getJavaSchoolServer() {
+        return javaSchoolServer;
+    }
 }

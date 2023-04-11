@@ -256,4 +256,8 @@ public class JavaSchoolServer {
 
         return array;
     }
+
+    public JavaSchoolRepository getJavaSchoolRepository() {
+        return javaSchoolRepository;
+    }
 }
