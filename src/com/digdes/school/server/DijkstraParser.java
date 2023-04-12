@@ -103,14 +103,14 @@ public class DijkstraParser implements ReversionPolishNotation {
                 if (a != arrayRequest.length - 1 && arrayRequest[a + 1].contains("or")) {
                     String[] array = new String[]{stack.pop(), stack.pop()};
 
-                    saveSuitableCollection(mapStack, array, true, javaSchoolServer.getJavaSchoolRepository().getRepository());
+                    saveSuitableCollection(mapStack, array, true, javaSchoolServer.getDaoRepository().getRepository());
                     continue;
                 }
 
                 if (mapStack.isEmpty()) {
                     String[] array = new String[]{stack.pop(), stack.pop()};
 
-                    saveSuitableCollection(mapStack, array, true, javaSchoolServer.getJavaSchoolRepository().getRepository());
+                    saveSuitableCollection(mapStack, array, true, javaSchoolServer.getDaoRepository().getRepository());
 
 
                 } else {
@@ -132,13 +132,13 @@ public class DijkstraParser implements ReversionPolishNotation {
                 if (mapStack.isEmpty()) {
                     String[] array = new String[]{stack.pop(), stack.pop()};
 
-                    saveSuitableCollection(mapStack, array, false, javaSchoolServer.getJavaSchoolRepository().getRepository());
+                    saveSuitableCollection(mapStack, array, false, javaSchoolServer.getDaoRepository().getRepository());
 
                 } else {
                     String[] array = new String[]{stack.pop()};
 
                     var stackList = mapStack.pop();
-                    stackList.addAll(findSuitableCollection(array, false, javaSchoolServer.getJavaSchoolRepository().getRepository()));
+                    stackList.addAll(findSuitableCollection(array, false, javaSchoolServer.getDaoRepository().getRepository()));
                     mapStack.push(stackList);
 
                 }
@@ -156,7 +156,7 @@ public class DijkstraParser implements ReversionPolishNotation {
     }
 
     private void saveSuitableCollection(Stack<List<Map<String, Object>>> mapStack, String[] array, boolean greedy, List<Map<String, Object>> map) {
-        var result = findSuitableCollection(array, greedy, javaSchoolServer.getJavaSchoolRepository().getRepository());
+        var result = findSuitableCollection(array, greedy, javaSchoolServer.getDaoRepository().getRepository());
         if (!result.isEmpty()) {
             mapStack.push(result);
         }

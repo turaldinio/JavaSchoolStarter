@@ -3,7 +3,7 @@ package com.digdes.school.repository;
 import java.util.*;
 
 public class DAORepository {
-    private static DAORepository javaSchoolRepository;
+    private static DAORepository DAORepository;
     private List<Map<String, Object>> repository;
 
     private DAORepository() {
@@ -11,10 +11,10 @@ public class DAORepository {
     }
 
     public static DAORepository getInstance() {
-    if(javaSchoolRepository==null){
-        javaSchoolRepository=new DAORepository();
-    }
-    return javaSchoolRepository;
+        if (DAORepository == null) {
+            DAORepository = new DAORepository();
+        }
+        return DAORepository;
     }
 
     public List<Map<String, Object>> insert(Map<String, Object> map) {
@@ -26,12 +26,6 @@ public class DAORepository {
         repository.addAll(maps);
         return repository;
     }
-
-    public List<Map<String, Object>> update(Set<Map<String, Object>> maps) {
-        repository.addAll(maps);
-        return repository;
-    }
-
 
     public List<Map<String, Object>> select(String request) {
         return repository;
@@ -45,8 +39,8 @@ public class DAORepository {
         return repository;
     }
 
-    public void deleteMap(Iterator<Map<String, Object>> iterator) {
-        iterator.remove();
+    public void deleteMapInList(List<Map<String, Object>> list) {
+        repository.removeAll(list);
     }
 
     public Iterator<Map<String, Object>> getIterator() {

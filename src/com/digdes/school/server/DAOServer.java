@@ -12,14 +12,14 @@ public class DAOServer {
     private static final int MATH_OPERATION = 1;
     private static final int COLUMN_NAME = 0;
     private static final int COLUMN_VALUE = 2;
-    private final DAORepository javaSchoolRepository;
+    private final DAORepository daoRepository;
     private final DijkstraParser dijkstraParser;
     private final ArgumentsTypesConverter argumentsConverterServer;
 
     private final MathematicalConverter mathematicalConverterServer;
 
     public DAOServer() {
-        this.javaSchoolRepository = DAORepository.getInstance();
+        this.daoRepository = DAORepository.getInstance();
         this.dijkstraParser = new DijkstraParser(this);
         this.argumentsConverterServer = ArgumentsTypesConverterImpl.getInstance();
         mathematicalConverterServer = MathematicalConverterImpl.getInstance();
@@ -41,7 +41,7 @@ public class DAOServer {
                 map.put(processedRequestData[COLUMN_NAME], typedObject);
 
             }
-            return javaSchoolRepository.insert(map);
+            return daoRepository.insert(map);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,9 +59,9 @@ public class DAOServer {
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
-        var timeResult = findASuitableCollection(filterCondition, newValues);
+        var suitableCollection = findASuitableCollection(filterCondition, newValues);
 
-        return javaSchoolRepository.update(updateValuesInRepository(newValues, timeResult));
+        return daoRepository.update(updateValuesInRepository(newValues, suitableCollection));
 
     }
 
@@ -119,7 +119,7 @@ public class DAOServer {
     public List<Map<String, Object>> filterTheCollection(String[] requestLine, String[] newValues, boolean greedy) {
         List<Map<String, Object>> mapList = new ArrayList<>();
 
-        Iterator<Map<String, Object>> iterator = javaSchoolRepository.getIterator();
+        Iterator<Map<String, Object>> iterator = daoRepository.getIterator();
 
         while (iterator.hasNext()) {
             Map<String, Object> currentMap = iterator.next();
@@ -128,7 +128,7 @@ public class DAOServer {
 
                 if (checkingValidityOfValues(requestLine, currentMap, greedy)) {
                     mapList.add(currentMap);
-                    javaSchoolRepository.deleteMap(iterator);
+                    //      daoRepository.deleteMap(iterator);
                 }
 
             }
@@ -139,24 +139,27 @@ public class DAOServer {
 
 
     public List<Map<String, Object>> select(String request) {
-        return javaSchoolRepository.select(request);
+        return daoRepository.select(request);
 
 
     }
 
     public List<Map<String, Object>> delete(String request) {
-        return javaSchoolRepository.delete(request);
+        return daoRepository.delete(request);
 
 
     }
 
     public List<Map<String, Object>> updateValuesInRepository(String[] newValues, List<Map<String, Object>> map) {
+        List<Map<String, Object>> copyMap = new ArrayList<>(map);
         for (Map<String, Object> pairs : map) {
             Arrays.stream(newValues).
                     map(this::getProcessedRequestData).
                     forEach(x -> pairs.put(x[COLUMN_NAME],
-                            argumentsConverterServer.getTypedValue(x[COLUMN_NAME], x[COLUMN_VALUE])));
+                            argumentsConverterServer.
+                                    getTypedValue(x[COLUMN_NAME], x[COLUMN_VALUE])));
         }
+        daoRepository.deleteMapInList(copyMap);
 
         return map;
     }
@@ -219,8 +222,7 @@ public class DAOServer {
     }
 
 
-
-    public DAORepository getJavaSchoolRepository() {
-        return javaSchoolRepository;
+    public DAORepository getDaoRepository() {
+        return daoRepository;
     }
 }

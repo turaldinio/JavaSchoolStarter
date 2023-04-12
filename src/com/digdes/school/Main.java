@@ -12,7 +12,7 @@ public class Main {
             starter.execute("INSERT VALUES 'lastName' = 'Гулуев ' , 'cost'=1.2, 'id'=1, 'age'=null, 'active'=false");
 
             var result = starter.execute("update values 'active'=false where age!=0 and 'cost'<10");
-            //  System.out.println(sortStation.calculatePostfixRequest(sortStation.getPostfixRequest("'id'=3 or age>1 and 'lastname'like%ев")));
+            System.out.println(result);
 
 
         } catch (Exception ex) {
