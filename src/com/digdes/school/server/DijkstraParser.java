@@ -38,15 +38,18 @@ public class DijkstraParser implements ReversionPolishNotation {
 
             if (value.contains("(")) {
                 operationStack.push("(");
-                continue;
+                value = value.substring(1);
             }
 
             if (value.contains(")")) {
-
+                if (!value.trim().equals(")")) {
+                    stringBuilder.append(isNeedSpace(stringBuilder.toString())).append(value, 0, value.indexOf(")")).append(" ");
+                }
                 for (int a = 0; a < operationStack.size(); a++) {
                     String as = operationStack.peek();
                     if (!as.equals("(")) {
-                        stringBuilder.append(operationStack.pop()).append(" ");
+                        stringBuilder.append(isNeedSpace(stringBuilder.toString())).append(operationStack.pop()).append(" ");
+
                         a = -1;
                     } else {
                         operationStack.pop();
@@ -54,19 +57,23 @@ public class DijkstraParser implements ReversionPolishNotation {
                     }
                 }
                 continue;
+
+
             }
+
             if (!value.contains("or") && !value.contains("and")) {
-                stringBuilder.append(value).append(" ");
+                stringBuilder.append(value);
                 continue;
             }
 
 
             if (value.contains("and") || value.contains("or")) {
+                stringBuilder.append(isNeedSpace(stringBuilder.toString()));
                 int currentOperationPriority = priorityMap.get(value);
                 for (int a = 0; a < operationStack.size(); a++) {
                     int priority = priorityMap.get(operationStack.peek());
                     if (priority >= currentOperationPriority) {
-                        stringBuilder.append(operationStack.pop()).append(" ");
+                        stringBuilder.append(isNeedSpace(stringBuilder.toString())).append(operationStack.pop()).append(" ");
                         a -= 1;
                     }
                 }
@@ -76,10 +83,17 @@ public class DijkstraParser implements ReversionPolishNotation {
 
         Collections.reverse(operationStack);
         for (String s : operationStack) {
-            stringBuilder.append(s).append(" ");
+            stringBuilder.append(isNeedSpace(stringBuilder.toString())).append(s);
         }
 
         return stringBuilder.toString();
+    }
+
+    public String isNeedSpace(String stringBuilder) {
+        if (stringBuilder.length() == 0) {
+            return "";
+        }
+        return stringBuilder.endsWith(" ") ? "" : " ";
     }
 
     @Override

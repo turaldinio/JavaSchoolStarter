@@ -18,9 +18,15 @@ public class MathematicalConverterRepository {
         return mathematicalConverterRepository;
     }
 
-    private Map<String, MathOperationParser<Object, Boolean>> mathematicalSignsMap =
+    private final Map<String, MathOperationParser<Object, Boolean>> mathematicalSignsMap =
             Map.of("=",
                     (currentValue, requestValue) -> {
+                        if (currentValue == null && requestValue == null) {
+                            return true;
+                        }
+                        if (currentValue == null || requestValue == null) {
+                            return false;
+                        }
                         if (currentValue instanceof Double) {
                             return (double) currentValue == (double) requestValue;
                         }
@@ -120,6 +126,16 @@ public class MathematicalConverterRepository {
                     }
                     , "!=",
                     (currentValue, requestValue) -> {
+                        if (currentValue != requestValue) {
+                            return true;
+                        }
+//                        if (currentValue == null && requestValue != null) {
+//                            return true;
+//                        }
+//                        if (requestValue == null && currentValue != null) {
+//                            return true;
+//                        }
+
                         if (currentValue instanceof Double) {
                             return (double) currentValue != (double) requestValue;
                         }

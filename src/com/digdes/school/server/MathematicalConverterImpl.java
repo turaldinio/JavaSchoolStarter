@@ -1,7 +1,6 @@
 package com.digdes.school.server;
 
 import com.digdes.school.repository.MathematicalConverterRepository;
-import com.digdes.school.server.interfaces.ArgumentsTypesConverter;
 import com.digdes.school.server.interfaces.MathematicalConverter;
 
 public class MathematicalConverterImpl implements MathematicalConverter {

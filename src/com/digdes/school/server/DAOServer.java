@@ -31,10 +31,9 @@ public class DAOServer {
         String stub = "insert values";
 
         var array = request.substring(stub.length()).split(",");
-        var arrayKeys = getAllArrayKeys(array);
 
         if (!daoRepository.getRepository().isEmpty()) {
-            checkAvailabilityOfAllKeys(arrayKeys, true);
+            checkAvailabilityOfAllKeys(getAllArrayKeys(array), true);
         }
 
         for (String line : array) {
@@ -55,6 +54,7 @@ public class DAOServer {
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
         checkAvailabilityOfAllKeys(getAllArrayKeys(newValues), false);
+
 
         var suitableCollection = findASuitableCollection(request);
 
@@ -111,8 +111,7 @@ public class DAOServer {
 
             var parseRequestParameters = getProcessedRequestData(currentFilter);
 
-            var repositoryValue = argumentsConverterServer.getTypedValue(parseRequestParameters[COLUMN_NAME],
-                    String.valueOf(map.get(parseRequestParameters[COLUMN_NAME])));
+            var repositoryValue = map.get(parseRequestParameters[COLUMN_NAME]);
 
             var requestValue = argumentsConverterServer.getTypedValue(parseRequestParameters[COLUMN_NAME], parseRequestParameters[COLUMN_VALUE]);
 
@@ -170,11 +169,11 @@ public class DAOServer {
     public void checkAvailabilityOfAllKeys(List<String> request, boolean availabilityOfAll) {
         for (String key : request) {
             if (!daoRepository.getRepository().get(0).containsKey(key)) {
-                throw new InconsistentException();
+                throw new InconsistentException("the data is not inconsistent");
             }
         }
         if (availabilityOfAll && request.size() != daoRepository.getRepository().get(0).size()) {
-            throw new InconsistentException();
+            throw new InconsistentException("the data is not inconsistent");
 
         }
 

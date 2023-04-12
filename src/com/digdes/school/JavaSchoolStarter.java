@@ -26,7 +26,5 @@ public class JavaSchoolStarter {
 
     }
 
-    public DAOServer getJavaSchoolServer() {
-        return javaSchoolServer;
-    }
+
 }
