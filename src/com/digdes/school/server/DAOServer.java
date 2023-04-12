@@ -52,71 +52,53 @@ public class DAOServer {
     public List<Map<String, Object>> update(String request) {
         String stub = "update values";
 
-        String filterCondition = request.
-                substring(request.
-                        indexOf("where") + "where".
-                        length());
-
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
         checkAvailabilityOfAllKeys(getAllArrayKeys(newValues), false);
 
-        var suitableCollection = findASuitableCollection(filterCondition);
+        var suitableCollection = findASuitableCollection(request);
 
         return daoRepository.update(updateValuesInRepository(newValues, suitableCollection));
 
     }
 
     public List<Map<String, Object>> select(String request) {
+        return findASuitableCollection(request);
+
+    }
+
+    public List<Map<String, Object>> delete(String request) {
+        return daoRepository.delete(findASuitableCollection(request));
+    }
+
+    public List<Map<String, Object>> findASuitableCollection(String request) {
         if (request.trim().contains("where")) {
+
             String filterCondition = request.
                     substring(request.
                             indexOf("where") + "where".
                             length());
 
-
-            return findASuitableCollection(filterCondition);
-        }
-
-        return daoRepository.select();
+            String[] filterConditionArray = null;
+            boolean greedy = false;
+            List<Map<String, Object>> result = null;
 
 
-    }
+            if (!filterCondition.contains("and") && !filterCondition.contains("or")) {
+                filterConditionArray = parseSingletonRequest(filterCondition);
+                greedy = true;
 
-    public List<Map<String, Object>> delete(String request) {
-        String stub = "delete values";
+                result = filterTheCollection(filterConditionArray, greedy);
 
-        String filterCondition = request.
-                substring(request.
-                        indexOf("where") + "where".
-                        length());
+            } else {
+                result = dijkstraParser.calculatePostfixRequest(dijkstraParser.getPostfixRequest(filterCondition));
+            }
 
-        var suitableCollection = findASuitableCollection(filterCondition);
-
-        daoRepository.delete(suitableCollection);
-        return suitableCollection;
-
-
-    }
-
-    public List<Map<String, Object>> findASuitableCollection(String filterCondition) {
-        String[] filterConditionArray = null;
-        boolean greedy = false;
-        List<Map<String, Object>> result = null;
-
-
-        if (!filterCondition.contains("and") && !filterCondition.contains("or")) {
-            filterConditionArray = parseSingletonRequest(filterCondition);
-            greedy = true;
-
-            result = filterTheCollection(filterConditionArray, greedy);
+            return result;
 
         } else {
-            result = dijkstraParser.calculatePostfixRequest(dijkstraParser.getPostfixRequest(filterCondition));
+            return daoRepository.getRepository();
         }
-
-        return result;
-
     }
 
     public String[] parseSingletonRequest(String request) {

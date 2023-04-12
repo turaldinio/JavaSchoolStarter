@@ -24,7 +24,7 @@ public class DAORepository {
 
     public List<Map<String, Object>> update(List<Map<String, Object>> maps) {
         repository.addAll(maps);
-        return repository;
+        return maps;
     }
 
     public List<Map<String, Object>> select() {
@@ -45,8 +45,9 @@ public class DAORepository {
     }
 
 
-    public void delete(List<Map<String, Object>> suitableCollection) {
-
+    public List<Map<String, Object>> delete(List<Map<String, Object>> suitableCollection) {
+        List<Map<String, Object>> valuesCopy = new ArrayList<>(suitableCollection);
         repository.removeAll(suitableCollection);
+        return valuesCopy;
     }
 }
