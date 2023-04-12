@@ -4,4 +4,7 @@ public class InconsistentException extends RuntimeException {
     public InconsistentException(String message) {
         super(message);
     }
+    public InconsistentException(){
+        super("the data is not inconsistent");
+    }
 }

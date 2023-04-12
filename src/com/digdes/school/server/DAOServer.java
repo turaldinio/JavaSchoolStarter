@@ -30,28 +30,23 @@ public class DAOServer {
         var map = new HashMap<String, Object>();
         String stub = "insert values";
 
-        try {
-            var array = request.substring(stub.length()).split(",");
-            var arrayKeys = getAllArrayKeys(array);
+        var array = request.substring(stub.length()).split(",");
+        var arrayKeys = getAllArrayKeys(array);
 
-            if (!daoRepository.getRepository().isEmpty() && !checkAvailabilityOfAllKeys(arrayKeys, daoRepository.getRepository())) {
-                throw new InconsistentException("the data is not inconsistent");
-            }
-
-            for (String line : array) {
-
-                var processedRequestData = getProcessedRequestData(line);
-                var typedObject = argumentsConverterServer.getTypedValue(processedRequestData[COLUMN_NAME], processedRequestData[COLUMN_VALUE]);
-
-                map.put(processedRequestData[COLUMN_NAME], typedObject);
-
-            }
-            return daoRepository.insert(map);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+        if (!daoRepository.getRepository().isEmpty()) {
+            checkAvailabilityOfAllKeys(arrayKeys, true);
         }
+
+        for (String line : array) {
+
+            var processedRequestData = getProcessedRequestData(line);
+            var typedObject = argumentsConverterServer.getTypedValue(processedRequestData[COLUMN_NAME], processedRequestData[COLUMN_VALUE]);
+
+            map.put(processedRequestData[COLUMN_NAME], typedObject);
+
+        }
+        return daoRepository.insert(map);
+
     }
 
     public List<Map<String, Object>> update(String request) {
@@ -64,13 +59,38 @@ public class DAOServer {
 
         String[] newValues = request.substring(stub.length(), request.indexOf("where")).split(",");
 
-        var suitableCollection = findASuitableCollection(filterCondition, newValues);
+        checkAvailabilityOfAllKeys(getAllArrayKeys(newValues), false);
+
+        var suitableCollection = findASuitableCollection(filterCondition);
 
         return daoRepository.update(updateValuesInRepository(newValues, suitableCollection));
 
     }
 
-    public List<Map<String, Object>> findASuitableCollection(String filterCondition, String[] newValues) {
+    public List<Map<String, Object>> select(String request) {
+        if (request.trim().contains("where")) {
+            String filterCondition = request.
+                    substring(request.
+                            indexOf("where") + "where".
+                            length());
+
+
+            return findASuitableCollection(filterCondition);
+        }
+
+        return daoRepository.select();
+
+
+    }
+
+    public List<Map<String, Object>> delete(String request) {
+
+        return daoRepository.delete(request);
+
+
+    }
+
+    public List<Map<String, Object>> findASuitableCollection(String filterCondition) {
         String[] filterConditionArray = null;
         boolean greedy = false;
         List<Map<String, Object>> result = null;
@@ -80,7 +100,7 @@ public class DAOServer {
             filterConditionArray = parseSingletonRequest(filterCondition);
             greedy = true;
 
-            result = filterTheCollection(filterConditionArray, newValues, greedy);
+            result = filterTheCollection(filterConditionArray, greedy);
 
         } else {
             result = dijkstraParser.calculatePostfixRequest(dijkstraParser.getPostfixRequest(filterCondition));
@@ -121,7 +141,7 @@ public class DAOServer {
     }
 
 
-    public List<Map<String, Object>> filterTheCollection(String[] requestLine, String[] newValues, boolean greedy) {
+    public List<Map<String, Object>> filterTheCollection(String[] requestLine, boolean greedy) {
         List<Map<String, Object>> mapList = new ArrayList<>();
 
         Iterator<Map<String, Object>> iterator = daoRepository.getIterator();
@@ -129,11 +149,10 @@ public class DAOServer {
         while (iterator.hasNext()) {
             Map<String, Object> currentMap = iterator.next();
 
-            if (checkAvailabilityOfAllKeys(requestLine, currentMap) && checkAvailabilityOfAllKeys(newValues, currentMap)) {
+            if (checkAvailabilityOfAllKeys(requestLine, currentMap)) {
 
                 if (checkingValidityOfValues(requestLine, currentMap, greedy)) {
                     mapList.add(currentMap);
-                    //      daoRepository.deleteMap(iterator);
                 }
 
             }
@@ -142,18 +161,6 @@ public class DAOServer {
         return mapList;
     }
 
-
-    public List<Map<String, Object>> select(String request) {
-        return daoRepository.select(request);
-
-
-    }
-
-    public List<Map<String, Object>> delete(String request) {
-        return daoRepository.delete(request);
-
-
-    }
 
     public List<Map<String, Object>> updateValuesInRepository(String[] newValues, List<Map<String, Object>> map) {
         List<Map<String, Object>> copyMap = new ArrayList<>(map);
@@ -169,18 +176,18 @@ public class DAOServer {
         return map;
     }
 
-    public boolean checkAvailabilityOfAllKeys(List<String> request, List<Map<String, Object>> listMap) {
-
+    public void checkAvailabilityOfAllKeys(List<String> request, boolean availabilityOfAll) {
         for (String key : request) {
-            if (!listMap.get(0).containsKey(key)) {
-                return false;
+            if (!daoRepository.getRepository().get(0).containsKey(key)) {
+                throw new InconsistentException();
             }
         }
-        if (request.size() != listMap.get(0).size()) {
-            return false;
+        if (availabilityOfAll && request.size() != daoRepository.getRepository().get(0).size()) {
+            throw new InconsistentException();
+
         }
 
-        return true;
+
     }
 
     public boolean checkAvailabilityOfAllKeys(String[] request, Map<String, Object> map) {

@@ -11,12 +11,12 @@ public class Main {
             starter.execute("INSERT VALUES 'lastName' = 'Гулуев ' , 'cost'=1.2, 'id'=1, 'age'=null, 'active'=false");
             starter.execute("INSERT VALUES 'lastName' = 'Исмаилов ' , 'cost'=10.4, 'id'=2, 'age'=34, 'active'=true");
 
-            var result = starter.execute("update values 'active'=false where 'age'=15 and 'cost'=10.4 or id>=1 and age>1");
+            var result = starter.execute("select values where 'id'=15 or 'asd'=23");
             System.out.println(result);
 
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println(ex.getMessage());
         }
     }
 }

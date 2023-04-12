@@ -27,7 +27,7 @@ public class DAORepository {
         return repository;
     }
 
-    public List<Map<String, Object>> select(String request) {
+    public List<Map<String, Object>> select() {
         return repository;
     }
 
