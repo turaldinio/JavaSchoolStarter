@@ -11,7 +11,7 @@ public class Main {
             starter.execute("INSERT VALUES 'lastName' = 'Гулуев ' , 'cost'=1.2, 'id'=1, 'age'=null, 'active'=false");
             starter.execute("INSERT VALUES 'lastName' = 'Исмаилов ' , 'cost'=10.4, 'id'=2, 'age'=34, 'active'=true");
 
-            var result = starter.execute("select values where 'id'=15 or 'asd'=23");
+            var result = starter.execute("delete values  where 'id'=1 and 'cost'<11 ");
             System.out.println(result);
 
 

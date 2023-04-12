@@ -31,9 +31,6 @@ public class DAORepository {
         return repository;
     }
 
-    public List<Map<String, Object>> delete(String request) {
-        return repository;
-    }
 
     public List<Map<String, Object>> getRepository() {
         return repository;
@@ -48,4 +45,8 @@ public class DAORepository {
     }
 
 
+    public void delete(List<Map<String, Object>> suitableCollection) {
+
+        repository.removeAll(suitableCollection);
+    }
 }

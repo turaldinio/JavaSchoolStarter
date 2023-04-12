@@ -84,8 +84,17 @@ public class DAOServer {
     }
 
     public List<Map<String, Object>> delete(String request) {
+        String stub = "delete values";
 
-        return daoRepository.delete(request);
+        String filterCondition = request.
+                substring(request.
+                        indexOf("where") + "where".
+                        length());
+
+        var suitableCollection = findASuitableCollection(filterCondition);
+
+        daoRepository.delete(suitableCollection);
+        return suitableCollection;
 
 
     }
