@@ -1,5 +1,6 @@
 package com.digdes.school.server;
 
+import com.digdes.school.excption.InconsistentException;
 import com.digdes.school.excption.NonExistentParameter;
 import com.digdes.school.repository.DAORepository;
 import com.digdes.school.server.interfaces.ArgumentsTypesConverter;
@@ -31,11 +32,15 @@ public class DAOServer {
 
         try {
             var array = request.substring(stub.length()).split(",");
+            var arrayKeys = getAllArrayKeys(array);
+
+            if (!daoRepository.getRepository().isEmpty() && !checkAvailabilityOfAllKeys(arrayKeys, daoRepository.getRepository())) {
+                throw new InconsistentException("the data is not inconsistent");
+            }
 
             for (String line : array) {
-                String cleanParameters = line.replaceAll("'", "");
 
-                var processedRequestData = getProcessedRequestData(cleanParameters);
+                var processedRequestData = getProcessedRequestData(line);
                 var typedObject = argumentsConverterServer.getTypedValue(processedRequestData[COLUMN_NAME], processedRequestData[COLUMN_VALUE]);
 
                 map.put(processedRequestData[COLUMN_NAME], typedObject);
@@ -164,6 +169,20 @@ public class DAOServer {
         return map;
     }
 
+    public boolean checkAvailabilityOfAllKeys(List<String> request, List<Map<String, Object>> listMap) {
+
+        for (String key : request) {
+            if (!listMap.get(0).containsKey(key)) {
+                return false;
+            }
+        }
+        if (request.size() != listMap.get(0).size()) {
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean checkAvailabilityOfAllKeys(String[] request, Map<String, Object> map) {
         for (String parameter : request) {
             var paramArray = getProcessedRequestData(parameter);
@@ -219,6 +238,16 @@ public class DAOServer {
                 replaceAll("'", "");
 
         return array;
+    }
+
+    public List<String> getAllArrayKeys(String[] request) {
+        List<String> result = new ArrayList<>();
+
+        for (String data : request) {
+            result.add(data.substring(0, data.indexOf("=")).replaceAll("'", "").trim().toLowerCase());
+        }
+        return result;
+
     }
 
 
